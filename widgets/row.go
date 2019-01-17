@@ -2,7 +2,7 @@ package widgets
 
 import (
 	breeze "github.com/RossMerr/Breeze"
-	"github.com/RossMerr/Breeze/mainAxisAlignment"
+	"github.com/RossMerr/Breeze/widgets/mainAxisAlignment"
 )
 
 type Row struct {

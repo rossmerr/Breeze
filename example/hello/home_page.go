@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	. "github.com/RossMerr/Breeze"
-	"github.com/RossMerr/Breeze/mainAxisAlignment"
 	. "github.com/RossMerr/Breeze/material"
 	"github.com/RossMerr/Breeze/material/icons"
 	. "github.com/RossMerr/Breeze/widgets"
+	"github.com/RossMerr/Breeze/widgets/mainAxisAlignment"
 )
 
 // MyHomePage is a home page widget.
