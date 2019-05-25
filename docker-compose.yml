@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  http:
+    build: ./cmd/http/ .
+    volumes:
+      - ./public:/public
+    ports:
+      - "8080:8080"
