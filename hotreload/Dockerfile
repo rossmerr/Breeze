@@ -4,9 +4,9 @@ RUN apk add git
 RUN go get github.com/githubnemo/CompileDaemon
 
 
+VOLUME [ "/src" ]
+WORKDIR /src
+
 VOLUME [ "/public" ]
-WORKDIR /public
 
-ENTRYPOINT CGO_ENABLED=0 GOOS=linux CompileDaemon -log-prefix=false -verbose=true -build="go build -a -o wasm ." -command="./wasm"
-
-
+ENTRYPOINT CGO_ENABLED=0 GOOS=js GOARCH=wasm CompileDaemon -log-prefix=false -verbose=true -build="go build -a -o /public/breeze.wasm ." -command="cp $(go env GOROOT)/misc/wasm/wasm_exec.js /public/"

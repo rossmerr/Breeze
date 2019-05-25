@@ -1,16 +1,19 @@
 version: '3'
 services:
   hotreload:
-    build: ./hotreload/ .
+    build: ./hotreload/
     ports:
       - "5000:5000"
     volumes:
-      - ./build/wasm:/public
+      - ./build/wasm:/src
+      - ./public:/public
   http:
-    build: ./cmd/http/ .
+    build: ./cmd/http/
     volumes:
       - ./public:/public
     ports:
       - "8080:8080"
     depends_on:
       - hotreload
+volumes:
+  data-volume:      
