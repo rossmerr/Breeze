@@ -16,7 +16,7 @@
           console.error(err);
         }
       }
-      var evtSource = new EventSource("/stream");
+      var evtSource = new EventSource("/hotreload");
       evtSource.onmessage = function(e) {
           run(e.data)    
       }

@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -14,24 +15,27 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-var port int
-var public string
-var directory string
-var messages chan string
+var flagPort int
+var flagWASM string
+var flagDirectory string
+var flagSrc string
+var flagBuild string
 
 func init() {
-	flag.IntVar(&port, "port", 8080, "Port for http server")
-	flag.StringVar(&public, "public", "../../public/", "Public folder for WASM")
-	flag.StringVar(&directory, "directory", "../../public/", "Directory to watch for changes")
+	flag.IntVar(&flagPort, "port", 8080, "Port for http server")
+	flag.StringVar(&flagWASM, "wasm", "WebAssembly.wasm", "WASM file name")
+	flag.StringVar(&flagSrc, "src", "/src/", "Directory to run build command in")
+	flag.StringVar(&flagDirectory, "directory", "/www/", "Directory to host")
+	flag.StringVar(&flagBuild, "build", "go build", "Command to rebuild after changes")
 }
 
 func main() {
 	flag.Parse()
 
-	messages = make(chan string)
+	flagSrc = filepath.Clean(flagSrc) + "/"
+	flagDirectory = filepath.Clean(flagDirectory) + "/"
 
-	http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(""))))
-	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir(public))))
+	http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(flagDirectory))))
 
 	watcher, err := fsnotify.NewWatcher()
 
@@ -41,34 +45,39 @@ func main() {
 
 	defer watcher.Close()
 
-	if err := watcher.Add(directory); err != nil {
-		log.Fatal("watcher.Add():", err)
+	log.Println(flagSrc)
+	if err := watcher.Add(flagSrc); err != nil {
+		log.Fatal("watcher.Add():", err, flagSrc)
 	}
-
-	go events(watcher)
-
+	if err := watcher.Add(flagDirectory); err != nil {
+		log.Fatal("watcher.Add():", err, flagDirectory)
+	}
 	stream := eventsource.NewStream()
 
-	go func(s *eventsource.Stream) {
-		for t := range messages {
-			msg := strings.ReplaceAll(t, public, "/public/")
-			if strings.EqualFold(path.Ext(msg), ".wasm") {
-				stream.Broadcast(eventsource.DataEvent(msg))
-			}
-		}
-	}(stream)
+	go events(watcher, stream)
 
-	http.Handle("/stream", stream)
+	http.Handle("/hotreload", stream)
 
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(flagPort), nil))
 }
 
-func events(watcher *fsnotify.Watcher) {
+func events(watcher *fsnotify.Watcher, stream *eventsource.Stream) {
 	for {
 		select {
-		case ev := <-watcher.Events:
+		case ev, ok := <-watcher.Events:
+			if !ok {
+				return
+			}
 			if ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create {
-				messages <- ev.Name
+				file := filepath.Base(ev.Name)
+				dir := filepath.Dir(ev.Name) + "/"
+				if dir == flagSrc {
+					build()
+				} else if dir == flagDirectory {
+					if strings.EqualFold(file, flagWASM) {
+						stream.Broadcast(eventsource.DataEvent(file))
+					}
+				}
 			}
 
 		case err := <-watcher.Errors:
@@ -82,4 +91,28 @@ func events(watcher *fsnotify.Watcher) {
 		}
 	}
 
+}
+
+func build() bool {
+	log.Println("Running build command!")
+
+	args := strings.Split(flagBuild+" -a -o "+flagDirectory+flagWASM+" .", " ")
+	if len(args) == 0 {
+		// If the user has specified and empty then we are done.
+		return true
+	}
+
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = flagSrc
+
+	output, err := cmd.CombinedOutput()
+
+	if err == nil {
+		log.Println("Build ok.")
+	} else {
+		log.Println("Error while building:\n", string(output))
+		log.Panicln("error", err)
+	}
+
+	return err == nil
 }

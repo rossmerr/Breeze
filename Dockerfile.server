@@ -10,8 +10,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -o server .
 
 FROM alpine:3.9  
 RUN apk --no-cache add ca-certificates
+RUN make /src
 WORKDIR /root/
 COPY --from=builder /go/src/github.com/rossmerr/breeze/cmd/server .
-VOLUME [ "/public" ]
+VOLUME [ "/www" ]
 EXPOSE 3000
-CMD ["./server", "--public", "/public"]  
+CMD ["./server"]  
