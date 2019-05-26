@@ -1,7 +1,23 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"syscall/js"
+	"time"
+)
 
 func main() {
-	fmt.Println("hello world")
+	fmt.Println("time ", time.Now())
+
+	window := js.Global()
+	navigator := window.Get("navigator")
+	fmt.Println("navigator", navigator)
+	serviceWorker := navigator.Get("serviceWorker")
+	fmt.Println("serviceWorker", serviceWorker)
+	//register := navigator.Get("register")
+	promise := serviceWorker.Call("register", "/public/service-worker.js")
+	fmt.Println("promise", promise)
+	// for _, var := range navigator {
+	// 	fmt.Println("test", var)
+	// }
 }

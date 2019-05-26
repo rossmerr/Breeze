@@ -7,13 +7,13 @@ services:
     volumes:
       - ./build/wasm:/src
       - ./public:/public
-  http:
-    build: ./cmd/http/
+  server:
+    build: 
+      context: .
+      dockerfile: Dockerfile.server
     volumes:
       - ./public:/public
     ports:
       - "8080:8080"
     depends_on:
       - hotreload
-volumes:
-  data-volume:      
