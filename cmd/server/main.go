@@ -2,15 +2,14 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"syscall"
 
+	"github.com/AndrewBurian/eventsource"
 	"github.com/fsnotify/fsnotify"
-	"golang.org/x/net/websocket"
 )
 
 var port int
@@ -31,7 +30,6 @@ func main() {
 
 	http.Handle("/", http.StripPrefix("/", http.FileServer(http.Dir(""))))
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir(public))))
-	http.Handle("/socket", websocket.Handler(echo))
 
 	watcher, err := fsnotify.NewWatcher()
 
@@ -47,17 +45,17 @@ func main() {
 
 	go events(watcher)
 
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
-}
+	stream := eventsource.NewStream()
 
-func echo(ws *websocket.Conn) {
-	for t := range messages {
-		fmt.Println("Message", t)
-		if err := websocket.Message.Send(ws, t); err != nil {
-			fmt.Println("Can't send", err)
-			break
+	go func(s *eventsource.Stream) {
+		for t := range messages {
+			stream.Broadcast(eventsource.DataEvent(t))
 		}
-	}
+	}(stream)
+
+	http.Handle("/stream", stream)
+
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
 }
 
 func events(watcher *fsnotify.Watcher) {
