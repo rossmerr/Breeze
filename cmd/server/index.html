@@ -16,8 +16,11 @@
           console.error(err);
         }
       }
-      setTimeout(() => run("/public/breeze.wasm"));
-    </script>
+      var evtSource = new EventSource("/stream");
+      evtSource.onmessage = function(e) {
+          run(e.data)    
+      }
+      </script>
   </head>
   <body></body>
 </html>

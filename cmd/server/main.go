@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/AndrewBurian/eventsource"
@@ -49,7 +51,10 @@ func main() {
 
 	go func(s *eventsource.Stream) {
 		for t := range messages {
-			stream.Broadcast(eventsource.DataEvent(t))
+			msg := strings.ReplaceAll(t, public, "/public/")
+			if strings.EqualFold(path.Ext(msg), ".wasm") {
+				stream.Broadcast(eventsource.DataEvent(msg))
+			}
 		}
 	}(stream)
 
