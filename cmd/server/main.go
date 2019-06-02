@@ -111,7 +111,7 @@ func build() bool {
 		log.Println("Build ok.")
 	} else {
 		log.Println("Error while building:\n", string(output))
-		log.Panicln("error", err)
+		log.Println("error", err)
 	}
 
 	return err == nil

@@ -1,19 +1,10 @@
 version: '3'
 services:
-  hotreload:
-    build: ./hotreload/
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./build/wasm:/src
-      - ./public:/public
   server:
     build: 
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile
     volumes:
-      - ./public:/public
+      - ./build/wasm:/src
     ports:
       - "8080:8080"
-    depends_on:
-      - hotreload
