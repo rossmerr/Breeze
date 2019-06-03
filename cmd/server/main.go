@@ -104,7 +104,7 @@ func build() bool {
 
 	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = flagSrc
-
+	cmd.Env = []string{"GOOS=js", "GOARCH=wasm", "GOPATH=" + os.Getenv("GOPATH"), "HOME=" + os.Getenv("HOME")}
 	output, err := cmd.CombinedOutput()
 
 	if err == nil {
