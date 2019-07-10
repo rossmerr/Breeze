@@ -16,7 +16,7 @@ func main() {
 	// //register := navigator.Get("register")
 	// promise := serviceWorker.Call("register", "/public/service-worker.js")
 	// fmt.Println("promise", promise)
-	fmt.Println("hi")
+	fmt.Println("hi ")
 	// for _, var := range navigator {
 	// 	fmt.Println("test", var)
 	// }

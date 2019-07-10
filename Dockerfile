@@ -1,7 +1,7 @@
 FROM golang:1.12-alpine3.9 AS builder
 RUN apk add git
 
-WORKDIR /go/src/github.com/rossmerr/breeze/cmd/server
+WORKDIR /go/src/github.com/RossMerr/Breeze/cmd/server
 COPY ./cmd/server/ . 
 COPY ./go.mod . 
 RUN GO111MODULE=on go mod vendor
@@ -12,8 +12,8 @@ FROM golang:1.12-alpine3.9
 RUN apk --no-cache add ca-certificates
 RUN mkdir /www
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/rossmerr/breeze/cmd/server/server .
-COPY --from=builder /go/src/github.com/rossmerr/breeze/cmd/server/index.html /www
+COPY --from=builder /go/src/github.com/RossMerr/Breeze/cmd/server/server .
+COPY --from=builder /go/src/github.com/RossMerr/Breeze/cmd/server/index.html /www
 COPY --from=builder /usr/local/go/misc/wasm/wasm_exec.js /www
 
 VOLUME [ "/src" ]
