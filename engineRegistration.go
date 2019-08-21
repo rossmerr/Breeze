@@ -3,7 +3,7 @@ package breeze
 import (
 	"errors"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 var ErrEngineNotRegistred = errors.New("This Engine is not registered.")

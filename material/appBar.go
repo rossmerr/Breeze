@@ -12,6 +12,10 @@ func NewAppBar(params AppBarParams) AppBar {
 	return AppBar{Params: params}
 }
 
+func (s AppBar)String() string {
+	return ""
+}
+
 type AppBarParams struct {
 	Title widgets.Text
 }
