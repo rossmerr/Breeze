@@ -1,10 +1,6 @@
 {
     "go.formatTool": "goimports",
-    "go.useLanguageServer": true,
-    "go.languageServerExperimentalFeatures": {
-        "diagnostics": true // for build and vet errors as you type
-    },
-    "go.goroot": "/snap/go/3739",
+    "go.gopath": "~/go",
     "[go]": {
         "editor.snippetSuggestions": "none",
         "editor.formatOnSave": true,
