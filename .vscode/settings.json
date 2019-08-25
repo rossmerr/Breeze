@@ -1,15 +1,11 @@
 {
     "go.formatTool": "goimports",
-    "go.gopath": "~/go",
     "[go]": {
         "editor.snippetSuggestions": "none",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
         }
-    },
-    "gopls": {
-        "usePlaceholders": true // add parameter placeholders when completing a function
     },
     "files.eol": "\n", // formatting only supports LF line endings
 }
